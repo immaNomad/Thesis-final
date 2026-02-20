@@ -1,9 +1,4 @@
 #!/home/thesis-mindrlhf/rpi5_defender_rlhf/mindrlhf_venv/bin/python3
-"""
-RLHF Continuous Learning Phishing Detection GUI
-Complete integration with same format as simple_working_app.py
-True MindRLHF with continuous learning from human feedback
-"""
 
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
