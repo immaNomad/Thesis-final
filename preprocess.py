@@ -23,18 +23,12 @@ except Exception:
 DATASET_PATH = os.path.join(os.getcwd(), 'Datasets')
 PROCESSED_PATH = os.path.join(os.getcwd(), 'Processed_Data')
 
-# Create processed data directory if it doesn't exist
 os.makedirs(PROCESSED_PATH, exist_ok=True)
 
 def preprocess_phishtank_dataset():
-    """
-    Preprocess PhishTank CSV dataset
-    """
     print("Processing PhishTank dataset...")
-    # Load the dataset
     phish_csv_path = os.path.join(DATASET_PATH, 'Phishtank Dataset.csv')
     
-    # Try different encodings if one fails
     try:
         phish_df = pd.read_csv(phish_csv_path)
     except UnicodeDecodeError:
@@ -43,11 +37,8 @@ def preprocess_phishtank_dataset():
         except:
             phish_df = pd.read_csv(phish_csv_path, encoding='ISO-8859-1')
     
-    # Clean data
-    # Drop any rows with missing values
     phish_df = phish_df.dropna()
     
-    # Build unified URL features per row
     rows = []
     for _, r in phish_df.iterrows():
         url = str(r.get('url', ''))
@@ -80,7 +71,6 @@ def preprocess_phishtank_dataset():
         rows.append(feats)
     features_df = pd.DataFrame(rows)
     
-    # Save processed dataset
     processed_file = os.path.join(PROCESSED_PATH, 'processed_phishtank.csv')
     features_df.to_csv(processed_file, index=False)
     
@@ -88,35 +78,26 @@ def preprocess_phishtank_dataset():
     return features_df
 
 def preprocess_enron_emails():
-    """
-    Preprocess Enron email dataset - IMPROVED VERSION
-    Extracts real legitimate business emails for RLHF training
-    """
     print("Processing Enron email dataset (improved extraction)...")
     enron_path = os.path.join(DATASET_PATH, "Enron's Email Dataset")
     
     if not os.path.exists(enron_path):
         print(f"Enron dataset not found at {enron_path}")
         return None
-    
-    # Lists to store email data
+
     email_data = []
     
     def extract_enron_email(file_path):
-        """Extract email content, subject, and sender from Enron email file"""
         try:
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                 content = f.read()
             
-            # Split into header and body sections
             if '\n\n' in content:
                 header_section, body_section = content.split('\n\n', 1)
             else:
-                # If no clear separation, treat as all header
                 header_section = content
                 body_section = ""
             
-            # Extract header information
             subject = ""
             sender = ""
             
@@ -127,10 +108,8 @@ def preprocess_enron_emails():
                 elif line.startswith('From:'):
                     sender = line.replace('From:', '').strip()
             
-            # Clean the body content
             body = body_section.strip()
-            
-            # Remove common email artifacts
+         
             body = re.sub(r'-----Original Message-----.*', '', body, flags=re.DOTALL)
             body = re.sub(r'<< File:.*?>>', '', body)
             body = re.sub(r'X-.*?:', '', body)
