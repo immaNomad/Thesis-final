@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-"""
-Lightweight RLHF classifier service exposing live classify_email_rlhf without GUI deps.
-Uses the RLHF state stored in rlhf_phishing_detection.db (model weights, metrics).
-"""
 
 import os
 import json
@@ -22,7 +18,6 @@ except Exception:
 
 
 class RLHFClassifierService:
-    """Headless classifier service exposing the same RLHF classification logic without GUI."""
     def __init__(self, db_path: str = "/home/mark/Desktop/PhishingDetection/rlhf_phishing_detection.db", metric_calibration_pct: float = 0.0):
         self.db_path = db_path
         # Defaults
