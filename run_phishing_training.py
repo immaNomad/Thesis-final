@@ -1,17 +1,4 @@
 #!/usr/bin/env python3
-"""
-MindRLHF Phishing Detection Training Script
-==========================================
-
-This script will:
-1. Preprocess your datasets (Enron, PhishTank, etc.)
-2. Train the MindRLHF phishing detection model
-3. Log training metrics including loss curves
-4. Generate real training data for your thesis graphs
-
-Usage:
-    python3 run_phishing_training.py --epochs 20 --device_target CPU
-"""
 
 import argparse
 import numpy as np
@@ -36,14 +23,13 @@ try:
         preprocess_spamassassin_ham,
         extract_email_features
     )
-    print("✅ Preprocessing modules loaded successfully")
+    print("Preprocessing modules loaded successfully")
 except ImportError as e:
-    print(f"⚠️ Warning: Could not import preprocessing modules: {e}")
+    print(f"Warning: Could not import preprocessing modules: {e}")
     print("Training will proceed with existing processed data if available")
 
 # Setup logging
 def setup_logging():
-    """Setup comprehensive logging for training"""
     log_dir = Path("training_logs")
     log_dir.mkdir(exist_ok=True)
     
@@ -62,12 +48,10 @@ def setup_logging():
     return logging.getLogger(__name__), log_file
 
 def preprocess_datasets():
-    """Preprocess all available datasets"""
-    logger.info("🔄 Starting dataset preprocessing...")
+    logger.info("Starting dataset preprocessing...")
     
     datasets_processed = []
     
-    # List of preprocessing functions to try
     preprocessing_functions = [
         ("PhishTank", preprocess_phishtank_dataset),
         ("Enron", preprocess_enron_emails),
@@ -82,18 +66,17 @@ def preprocess_datasets():
             result = func()
             if result is not None:
                 datasets_processed.append(name)
-                logger.info(f"✅ {name} dataset processed successfully")
+                logger.info(f"{name} dataset processed successfully")
             else:
-                logger.warning(f"⚠️ {name} dataset processing returned empty result")
+                logger.warning(f"{name} dataset processing returned empty result")
         except Exception as e:
-            logger.error(f"❌ Error processing {name} dataset: {e}")
+            logger.error(f"Error processing {name} dataset: {e}")
             continue
     
-    logger.info(f"📊 Successfully processed {len(datasets_processed)} datasets: {datasets_processed}")
+    logger.info(f"Successfully processed {len(datasets_processed)} datasets: {datasets_processed}")
     return datasets_processed
 
 def create_training_config(args):
-    """Create training configuration for MindRLHF"""
     config = {
         "model": {
             "model_name": "phishing_detector",
@@ -159,11 +142,11 @@ def train_mindrlhf_model(config):
             max_device_memory="6GB"
         )
         
-        logger.info(f"✅ MindSpore context set for {config['training']['device_target']}")
+        logger.info(f"MindSpore context set for {config['training']['device_target']}")
         
         # Simulate training loop with realistic progression
         epochs = config["training"]["epochs"]
-        logger.info(f"📈 Training for {epochs} epochs...")
+        logger.info(f"Training for {epochs} epochs...")
         
         # Realistic training progression based on your network architecture
         for epoch in range(epochs):
@@ -224,15 +207,15 @@ def train_mindrlhf_model(config):
             
             # Early stopping check
             if epoch > 10 and val_loss > training_metrics["val_loss"][-5]:
-                logger.info(f"🛑 Early stopping triggered at epoch {epoch+1}")
+                logger.info(f"Early stopping triggered at epoch {epoch+1}")
                 break
                 
-        logger.info("✅ Training completed successfully!")
+        logger.info("Training completed successfully!")
         return training_metrics
         
     except ImportError as e:
-        logger.error(f"❌ MindSpore import error: {e}")
-        logger.info("📝 Generating simulated training metrics for development...")
+        logger.error(f"MindSpore import error: {e}")
+        logger.info("Generating simulated training metrics for development...")
         
         # Generate realistic simulated metrics for development
         import numpy as np
@@ -273,7 +256,7 @@ def train_mindrlhf_model(config):
             training_metrics["f1_score"].append(float(f1))
             training_metrics["pr_auc"].append(float(pr_auc))
         
-        logger.info("✅ Simulated training metrics generated!")
+        logger.info("Simulated training metrics generated!")
         return training_metrics
 
 def save_training_results(metrics, datasets_processed):
@@ -330,19 +313,16 @@ def main():
     # Setup logging
     logger, log_file = setup_logging()
     
-    logger.info("=" * 80)
-    logger.info("🎯 MINDRLHF PHISHING DETECTION TRAINING")
-    logger.info("=" * 80)
-    logger.info(f"📅 Started at: {datetime.now()}")
-    logger.info(f"⚙️ Configuration:")
+    logger.info("MINDRLHF PHISHING DETECTION TRAINING")
+    logger.info(f"Started at: {datetime.now()}")
+    logger.info(f"Configuration:")
     logger.info(f"   • Epochs: {args.epochs}")
     logger.info(f"   • Batch Size: {args.batch_size}")
     logger.info(f"   • Learning Rate: {args.learning_rate}")
     logger.info(f"   • Device: {args.device_target}")
-    logger.info(f"📝 Log file: {log_file}")
+    logger.info(f"Log file: {log_file}")
     
     try:
-        # Step 1: Preprocess datasets (if requested)
         datasets_processed = []
         if args.preprocess:
             datasets_processed = preprocess_datasets()
@@ -353,34 +333,28 @@ def main():
         if args.skip_training:
             logger.info("⏭️ Skipping training as requested")
             return
-        
-        # Step 2: Create training configuration
+    
         config = create_training_config(args)
         logger.info("📋 Training configuration created")
         
-        # Step 3: Train the model
         training_metrics = train_mindrlhf_model(config)
         
-        # Step 4: Save results
         results_file = save_training_results(training_metrics, datasets_processed)
         
-        # Step 5: Summary
         final_metrics = training_metrics
-        logger.info("=" * 80)
-        logger.info("🏆 TRAINING COMPLETED SUCCESSFULLY!")
-        logger.info("=" * 80)
-        logger.info(f"📊 Final Results:")
+        logger.info("TRAINING COMPLETED SUCCESSFULLY!")
+        logger.info(f"Final Results:")
         logger.info(f"   • Final Train Loss: {final_metrics['train_loss'][-1]:.4f}")
         logger.info(f"   • Final Val Loss: {final_metrics['val_loss'][-1]:.4f}")
         logger.info(f"   • Final Accuracy: {final_metrics['val_accuracy'][-1]:.3f}")
         logger.info(f"   • Final F1-Score: {final_metrics['f1_score'][-1]:.3f}")
         logger.info(f"   • Final PR-AUC: {final_metrics['pr_auc'][-1]:.3f}")
-        logger.info(f"💾 Results saved to: {results_file}")
-        logger.info(f"📝 Full log saved to: {log_file}")
-        logger.info("🎓 Ready for thesis defense!")
+        logger.info(f"Results saved to: {results_file}")
+        logger.info(f"Full log saved to: {log_file}")
+        logger.info("Ready for thesis defense!")
         
     except Exception as e:
-        logger.error(f"❌ Training failed: {e}")
+        logger.error(f"Training failed: {e}")
         logger.error("Check the log file for detailed error information")
         raise
 
